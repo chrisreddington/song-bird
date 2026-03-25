@@ -1,40 +1,45 @@
-# SCREAM INVADERS 👾🎤
+# SONG BIRD 🐦🎤
 
-**[PLAY NOW](https://ashleywolf.github.io/scream-invaders/scream-invaders.html)** (bring headphones or warn your coworkers)
-
-A Space Invaders clone where your keyboard is useless and your dignity is optional. Your webcam is the controller. Your lungs are the weapon.
+A Flappy Bird clone where your voice is the controller. Sing to fly. Dodge the contribution graph. Try not to embarrass yourself.
 
 ## How it works
 
-- **Your face moves the ship.** Tilt your head left, ship goes left. No hands required.
-- **Your voice fires.** Quiet noise = single shot. Yell = triple burst. Full scream = screen-clearing beam that shakes the display.
-- **Voice commands work too.** Say "LEFT" or "RIGHT" out loud. The aliens don't care about your feelings.
+- **Calibrate your voice.** Sing a comfortable note for 3 seconds. The game learns your range.
+- **Sing higher to fly up.** The pitch of your voice controls the bird's height.
+- **Sing lower to descend.** Or just stop singing — gravity does the rest.
+- **Dodge the obstacles.** GitHub contribution graph columns scroll toward you. Find the gap.
 
-By wave 5 you'll be standing up. By wave 7 someone will come check on you.
+By score 10 you'll be humming confidently. By score 25 you'll be doing vocal runs. By score 50 your coworkers will file an HR complaint.
 
 This is working as intended.
 
 ## What's under the hood
 
-37KB. One HTML file. No build step. No npm install. No server required.
+One HTML file. No build step. No npm install. No server required.
 
-- [Three.js](https://threejs.org/) for 3D rendering
-- [TensorFlow.js + BlazeFace](https://github.com/nicolo-ribaudo/face-mesh) for face tracking
-- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) for microphone volume
-- [Web Speech API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API) for voice commands
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) for microphone pitch detection
+- [Canvas 2D](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) for rendering
+- Autocorrelation algorithm for real-time pitch tracking
+- GitHub contribution graph blocks as obstacles
+- Pixel-art Poptocat as the playable character
 
 ## Run locally
 
 ```bash
 python3 -m http.server 8000
-open http://localhost:8000/scream-invaders.html
+open http://localhost:8000
 ```
 
-Camera and mic need HTTPS or localhost.
+Microphone needs HTTPS or localhost.
 
 ## Lineage
 
-This repo is a fork of [@leereilly's 3dpingpong](https://github.com/leereilly/3dpingpong) (itself a fork of [@martinwoodward's 3dbreakout](https://github.com/martinwoodward/3dbreakout)). Same question, different answer: what if the controller is your body?
+This repo is part of a nerd-sniping chain of voice/body-controlled browser games between GitHub colleagues. See also:
+- [@ashleywolf's Scream Invaders](https://github.com/ashleywolf/scream-invaders) — Space Invaders controlled by screaming
+- [@leereilly's 3D Ping Pong](https://github.com/leereilly/3dpingpong) — Pong controlled by your face
+- [@martinwoodward's 3D Breakout](https://github.com/martinwoodward/3dbreakout) — Breakout in 3D
+
+Same question, different answer: what if the controller is your singing voice?
 
 ## License
 

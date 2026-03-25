@@ -2,388 +2,875 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCREAM INVADERS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>SONG BIRD</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  background: #0a0a0a;
-  color: #e0e0e0;
-  font-family: 'Press Start 2P', monospace;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
-
-/* CRT scanline overlay */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px, transparent 2px,
-    rgba(0,0,0,0.08) 2px, rgba(0,0,0,0.08) 4px
-  );
-}
-
-/* Screen flicker */
-@keyframes flicker {
-  0%, 97%, 100% { opacity: 1; }
-  98% { opacity: 0.95; }
-  99% { opacity: 0.98; }
-}
-body { animation: flicker 4s infinite; }
-
-/* Starfield background */
-.stars {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-}
-.star {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  background: #fff;
-  border-radius: 50%;
-}
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; }
-  50% { opacity: 1; }
-}
-
-/* Main container */
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 60px 24px 80px;
-  text-align: center;
-}
-
-/* Title */
-.title {
-  font-size: 42px;
-  line-height: 1.3;
-  margin-bottom: 8px;
-  position: relative;
-}
-.title .scream {
-  color: #39d353;
-  text-shadow: 0 0 20px rgba(57,211,83,0.6), 0 0 40px rgba(57,211,83,0.3);
-}
-.title .invaders {
-  color: #58a6ff;
-  text-shadow: 0 0 20px rgba(88,166,255,0.6), 0 0 40px rgba(88,166,255,0.3);
-}
-@keyframes glitch {
-  0%, 94%, 100% { transform: translate(0); }
-  95% { transform: translate(-2px, 1px); }
-  96% { transform: translate(2px, -1px); }
-  97% { transform: translate(-1px, -1px); }
-}
-.title { animation: glitch 3s infinite; }
-
-.tagline {
-  font-size: 10px;
-  color: #8b949e;
-  letter-spacing: 2px;
-  margin-bottom: 50px;
-  text-transform: uppercase;
-}
-
-/* Volume visualization */
-.volume-demo {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 6px;
-  height: 120px;
-  margin-bottom: 16px;
-}
-.vol-bar {
-  width: 28px;
-  border-radius: 3px 3px 0 0;
-  position: relative;
-}
-@keyframes bar1 { 0%,100% { height: 25px; } 50% { height: 40px; } }
-@keyframes bar2 { 0%,100% { height: 35px; } 50% { height: 60px; } }
-@keyframes bar3 { 0%,100% { height: 50px; } 50% { height: 85px; } }
-@keyframes bar4 { 0%,100% { height: 70px; } 50% { height: 110px; } }
-@keyframes bar5 { 0%,100% { height: 50px; } 50% { height: 80px; } }
-@keyframes bar6 { 0%,100% { height: 30px; } 50% { height: 55px; } }
-@keyframes bar7 { 0%,100% { height: 20px; } 50% { height: 35px; } }
-.vol-bar:nth-child(1) { background: #39d353; animation: bar1 1.8s ease-in-out infinite 0.0s; }
-.vol-bar:nth-child(2) { background: #39d353; animation: bar2 1.8s ease-in-out infinite 0.1s; }
-.vol-bar:nth-child(3) { background: #f0e040; animation: bar3 1.8s ease-in-out infinite 0.2s; }
-.vol-bar:nth-child(4) { background: #f85149; animation: bar4 1.8s ease-in-out infinite 0.3s; box-shadow: 0 0 15px rgba(248,81,73,0.5); }
-.vol-bar:nth-child(5) { background: #f0e040; animation: bar5 1.8s ease-in-out infinite 0.2s; }
-.vol-bar:nth-child(6) { background: #39d353; animation: bar6 1.8s ease-in-out infinite 0.1s; }
-.vol-bar:nth-child(7) { background: #39d353; animation: bar7 1.8s ease-in-out infinite 0.0s; }
-
-.volume-labels {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  font-size: 8px;
-  color: #8b949e;
-  margin-bottom: 48px;
-}
-.volume-labels span { position: relative; }
-.volume-labels .quiet { color: #39d353; }
-.volume-labels .medium { color: #f0e040; }
-.volume-labels .loud { color: #f85149; }
-
-/* Play button */
-.play-btn {
-  display: inline-block;
-  padding: 20px 48px;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 18px;
-  color: #0a0a0a;
-  background: #39d353;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  position: relative;
-  transition: all 0.15s;
-  box-shadow: 0 0 30px rgba(57,211,83,0.4), 0 4px 0 #216e39;
-  margin-bottom: 12px;
-}
-.play-btn:hover {
-  background: #4ae363;
-  box-shadow: 0 0 50px rgba(57,211,83,0.7), 0 4px 0 #216e39;
-  transform: translateY(-2px);
-}
-.play-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 0 20px rgba(57,211,83,0.4), 0 1px 0 #216e39;
-}
-@keyframes btnpulse {
-  0%, 100% { box-shadow: 0 0 30px rgba(57,211,83,0.4), 0 4px 0 #216e39; }
-  50% { box-shadow: 0 0 50px rgba(57,211,83,0.6), 0 4px 0 #216e39; }
-}
-.play-btn { animation: btnpulse 2s ease-in-out infinite; }
-
-.play-hint {
-  font-size: 8px;
-  color: #484f58;
-  margin-bottom: 60px;
-}
-
-/* How it works */
-.how-section {
-  text-align: left;
-  margin-bottom: 50px;
-}
-.how-section h2 {
-  font-size: 12px;
-  color: #58a6ff;
-  margin-bottom: 24px;
-  text-align: center;
-}
-.control-row {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 18px;
-  padding: 12px 16px;
-  background: rgba(255,255,255,0.03);
-  border-left: 3px solid #30363d;
-}
-.control-row .icon {
-  font-size: 24px;
-  min-width: 40px;
-  text-align: center;
-}
-.control-row .label {
-  font-size: 9px;
-  color: #c9d1d9;
-  line-height: 1.8;
-}
-.control-row .label .dim { color: #6e7681; }
-.control-row.green { border-left-color: #39d353; }
-.control-row.blue { border-left-color: #58a6ff; }
-.control-row.red { border-left-color: #f85149; }
-.control-row.yellow { border-left-color: #f0e040; }
-
-/* Warning section */
-.warning {
-  background: rgba(248,81,73,0.08);
-  border: 1px solid rgba(248,81,73,0.2);
-  padding: 20px;
-  margin-bottom: 50px;
-  font-size: 8px;
-  line-height: 2;
-  color: #f85149;
-  text-align: center;
-}
-
-/* Invader pixel art */
-.invaders-row {
-  display: flex;
-  justify-content: center;
-  gap: 24px;
-  margin-bottom: 50px;
-}
-.pixel-invader {
-  width: 32px;
-  height: 32px;
-  position: relative;
-}
-@keyframes bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-.pixel-invader:nth-child(1) { animation: bob 1.5s ease-in-out infinite 0.0s; }
-.pixel-invader:nth-child(2) { animation: bob 1.5s ease-in-out infinite 0.15s; }
-.pixel-invader:nth-child(3) { animation: bob 1.5s ease-in-out infinite 0.3s; }
-.pixel-invader:nth-child(4) { animation: bob 1.5s ease-in-out infinite 0.45s; }
-.pixel-invader:nth-child(5) { animation: bob 1.5s ease-in-out infinite 0.6s; }
-.pixel-invader:nth-child(6) { animation: bob 1.5s ease-in-out infinite 0.75s; }
-.pixel-invader:nth-child(7) { animation: bob 1.5s ease-in-out infinite 0.9s; }
-.pixel-invader:nth-child(8) { animation: bob 1.5s ease-in-out infinite 1.05s; }
-
-/* SVG invaders */
-.inv-svg { width: 32px; height: 32px; }
-
-/* Footer */
-.footer {
-  font-size: 8px;
-  color: #30363d;
-  line-height: 2.2;
-}
-.footer a { color: #484f58; text-decoration: none; }
-.footer a:hover { color: #8b949e; }
-
-/* Responsive */
-@media (max-width: 600px) {
-  .title { font-size: 28px; }
-  .container { padding: 40px 16px 60px; }
-  .play-btn { padding: 16px 32px; font-size: 14px; }
-}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:#0d1117;font-family:'Press Start 2P',monospace;}
+canvas{display:block;}
+#ui-overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+#ui-overlay>div{pointer-events:auto;}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;max-width:640px;width:90vw;}
+.screen.active{display:flex;}
+.title-text{font-size:clamp(28px,8vw,52px);line-height:1.3;margin-bottom:8px;}
+.title-song{color:#39d353;text-shadow:0 0 20px rgba(57,211,83,0.6),0 0 40px rgba(57,211,83,0.3);}
+.title-bird{color:#58a6ff;text-shadow:0 0 20px rgba(88,166,255,0.6),0 0 40px rgba(88,166,255,0.3);}
+.subtitle{font-size:clamp(7px,1.8vw,10px);color:#8b949e;letter-spacing:2px;margin-bottom:40px;text-transform:uppercase;}
+.btn{display:inline-block;padding:18px 40px;font-family:'Press Start 2P',monospace;font-size:clamp(12px,3vw,18px);color:#0d1117;background:#39d353;border:none;cursor:pointer;transition:all .15s;box-shadow:0 0 30px rgba(57,211,83,0.4),0 4px 0 #216e39;margin-bottom:12px;animation:btnpulse 2s ease-in-out infinite;}
+.btn:hover{background:#4ae363;box-shadow:0 0 50px rgba(57,211,83,0.7),0 4px 0 #216e39;transform:translateY(-2px);}
+.btn:active{transform:translateY(2px);box-shadow:0 0 20px rgba(57,211,83,0.4),0 1px 0 #216e39;}
+@keyframes btnpulse{0%,100%{box-shadow:0 0 30px rgba(57,211,83,0.4),0 4px 0 #216e39;}50%{box-shadow:0 0 50px rgba(57,211,83,0.6),0 4px 0 #216e39;}}
+.hint{font-size:8px;color:#484f58;margin-bottom:30px;}
+.how-grid{text-align:left;margin-bottom:30px;width:100%;}
+.how-grid h2{font-size:11px;color:#58a6ff;margin-bottom:16px;text-align:center;}
+.how-row{display:flex;align-items:center;gap:14px;margin-bottom:10px;padding:10px 12px;background:rgba(255,255,255,0.03);border-left:3px solid #30363d;}
+.how-row .icon{font-size:20px;min-width:32px;text-align:center;}
+.how-row .label{font-size:clamp(7px,1.5vw,9px);color:#c9d1d9;line-height:1.8;}
+.how-row.g{border-left-color:#39d353;}.how-row.b{border-left-color:#58a6ff;}.how-row.r{border-left-color:#f85149;}
+.footer-text{font-size:7px;color:#30363d;line-height:2.2;margin-top:20px;}
+#cal-screen .cal-label{font-size:clamp(9px,2vw,12px);color:#c9d1d9;margin-bottom:20px;}
+#cal-meter{width:200px;height:200px;border-radius:50%;border:4px solid #30363d;margin:0 auto 20px;position:relative;display:flex;align-items:center;justify-content:center;}
+#cal-fill{width:0;height:0;border-radius:50%;background:radial-gradient(circle,#39d353,#216e39);transition:width .1s,height .1s;position:absolute;}
+#cal-hz{font-size:14px;color:#39d353;position:relative;z-index:1;}
+#cal-status{font-size:9px;color:#8b949e;margin-bottom:20px;}
+#go-screen .go-score{font-size:clamp(16px,5vw,32px);color:#39d353;margin-bottom:10px;}
+#go-screen .go-best{font-size:clamp(9px,2vw,14px);color:#58a6ff;margin-bottom:20px;}
+#go-screen .go-msg{font-size:clamp(8px,1.8vw,11px);color:#f85149;margin-bottom:30px;}
+#mic-err{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#161b22;border:2px solid #f85149;padding:30px;z-index:20;font-size:10px;color:#f85149;text-align:center;line-height:2;max-width:400px;}
+#mic-err button{margin-top:16px;padding:10px 20px;font-family:'Press Start 2P',monospace;font-size:9px;background:#f85149;color:#0d1117;border:none;cursor:pointer;}
+#achievement{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);background:#161b22;border:2px solid #39d353;padding:12px 24px;z-index:30;font-size:9px;color:#39d353;transition:transform .4s ease;white-space:nowrap;}
+#achievement.show{transform:translateX(-50%) translateY(0);}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(to bottom,transparent 0px,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px);}
+#landing-cat{width:80px;height:80px;margin:0 auto 20px;}
 </style>
 </head>
 <body>
-
-<!-- Starfield -->
-<div class="stars" id="stars"></div>
-
-<div class="container">
-
-  <!-- Animated invader row -->
-  <div class="invaders-row">
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#9be9a8" x="1" y="0" width="1" height="1"/><rect fill="#9be9a8" x="6" y="0" width="1" height="1"/><rect fill="#9be9a8" x="2" y="1" width="1" height="1"/><rect fill="#9be9a8" x="5" y="1" width="1" height="1"/><rect fill="#9be9a8" x="1" y="2" width="6" height="1"/><rect fill="#9be9a8" x="0" y="3" width="2" height="1"/><rect fill="#9be9a8" x="3" y="3" width="2" height="1"/><rect fill="#9be9a8" x="6" y="3" width="2" height="1"/><rect fill="#9be9a8" x="0" y="4" width="8" height="1"/><rect fill="#9be9a8" x="0" y="5" width="1" height="1"/><rect fill="#9be9a8" x="2" y="5" width="1" height="1"/><rect fill="#9be9a8" x="5" y="5" width="1" height="1"/><rect fill="#9be9a8" x="7" y="5" width="1" height="1"/><rect fill="#9be9a8" x="1" y="6" width="1" height="1"/><rect fill="#9be9a8" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#40c463" x="1" y="0" width="1" height="1"/><rect fill="#40c463" x="6" y="0" width="1" height="1"/><rect fill="#40c463" x="2" y="1" width="1" height="1"/><rect fill="#40c463" x="5" y="1" width="1" height="1"/><rect fill="#40c463" x="1" y="2" width="6" height="1"/><rect fill="#40c463" x="0" y="3" width="2" height="1"/><rect fill="#40c463" x="3" y="3" width="2" height="1"/><rect fill="#40c463" x="6" y="3" width="2" height="1"/><rect fill="#40c463" x="0" y="4" width="8" height="1"/><rect fill="#40c463" x="0" y="5" width="1" height="1"/><rect fill="#40c463" x="2" y="5" width="1" height="1"/><rect fill="#40c463" x="5" y="5" width="1" height="1"/><rect fill="#40c463" x="7" y="5" width="1" height="1"/><rect fill="#40c463" x="1" y="6" width="1" height="1"/><rect fill="#40c463" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#30a14e" x="1" y="0" width="1" height="1"/><rect fill="#30a14e" x="6" y="0" width="1" height="1"/><rect fill="#30a14e" x="2" y="1" width="1" height="1"/><rect fill="#30a14e" x="5" y="1" width="1" height="1"/><rect fill="#30a14e" x="1" y="2" width="6" height="1"/><rect fill="#30a14e" x="0" y="3" width="2" height="1"/><rect fill="#30a14e" x="3" y="3" width="2" height="1"/><rect fill="#30a14e" x="6" y="3" width="2" height="1"/><rect fill="#30a14e" x="0" y="4" width="8" height="1"/><rect fill="#30a14e" x="0" y="5" width="1" height="1"/><rect fill="#30a14e" x="2" y="5" width="1" height="1"/><rect fill="#30a14e" x="5" y="5" width="1" height="1"/><rect fill="#30a14e" x="7" y="5" width="1" height="1"/><rect fill="#30a14e" x="1" y="6" width="1" height="1"/><rect fill="#30a14e" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#216e39" x="1" y="0" width="1" height="1"/><rect fill="#216e39" x="6" y="0" width="1" height="1"/><rect fill="#216e39" x="2" y="1" width="1" height="1"/><rect fill="#216e39" x="5" y="1" width="1" height="1"/><rect fill="#216e39" x="1" y="2" width="6" height="1"/><rect fill="#216e39" x="0" y="3" width="2" height="1"/><rect fill="#216e39" x="3" y="3" width="2" height="1"/><rect fill="#216e39" x="6" y="3" width="2" height="1"/><rect fill="#216e39" x="0" y="4" width="8" height="1"/><rect fill="#216e39" x="0" y="5" width="1" height="1"/><rect fill="#216e39" x="2" y="5" width="1" height="1"/><rect fill="#216e39" x="5" y="5" width="1" height="1"/><rect fill="#216e39" x="7" y="5" width="1" height="1"/><rect fill="#216e39" x="1" y="6" width="1" height="1"/><rect fill="#216e39" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#f85149" x="1" y="0" width="1" height="1"/><rect fill="#f85149" x="6" y="0" width="1" height="1"/><rect fill="#f85149" x="2" y="1" width="1" height="1"/><rect fill="#f85149" x="5" y="1" width="1" height="1"/><rect fill="#f85149" x="1" y="2" width="6" height="1"/><rect fill="#f85149" x="0" y="3" width="2" height="1"/><rect fill="#f85149" x="3" y="3" width="2" height="1"/><rect fill="#f85149" x="6" y="3" width="2" height="1"/><rect fill="#f85149" x="0" y="4" width="8" height="1"/><rect fill="#f85149" x="0" y="5" width="1" height="1"/><rect fill="#f85149" x="2" y="5" width="1" height="1"/><rect fill="#f85149" x="5" y="5" width="1" height="1"/><rect fill="#f85149" x="7" y="5" width="1" height="1"/><rect fill="#f85149" x="1" y="6" width="1" height="1"/><rect fill="#f85149" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#216e39" x="1" y="0" width="1" height="1"/><rect fill="#216e39" x="6" y="0" width="1" height="1"/><rect fill="#216e39" x="2" y="1" width="1" height="1"/><rect fill="#216e39" x="5" y="1" width="1" height="1"/><rect fill="#216e39" x="1" y="2" width="6" height="1"/><rect fill="#216e39" x="0" y="3" width="2" height="1"/><rect fill="#216e39" x="3" y="3" width="2" height="1"/><rect fill="#216e39" x="6" y="3" width="2" height="1"/><rect fill="#216e39" x="0" y="4" width="8" height="1"/><rect fill="#216e39" x="0" y="5" width="1" height="1"/><rect fill="#216e39" x="2" y="5" width="1" height="1"/><rect fill="#216e39" x="5" y="5" width="1" height="1"/><rect fill="#216e39" x="7" y="5" width="1" height="1"/><rect fill="#216e39" x="1" y="6" width="1" height="1"/><rect fill="#216e39" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#40c463" x="1" y="0" width="1" height="1"/><rect fill="#40c463" x="6" y="0" width="1" height="1"/><rect fill="#40c463" x="2" y="1" width="1" height="1"/><rect fill="#40c463" x="5" y="1" width="1" height="1"/><rect fill="#40c463" x="1" y="2" width="6" height="1"/><rect fill="#40c463" x="0" y="3" width="2" height="1"/><rect fill="#40c463" x="3" y="3" width="2" height="1"/><rect fill="#40c463" x="6" y="3" width="2" height="1"/><rect fill="#40c463" x="0" y="4" width="8" height="1"/><rect fill="#40c463" x="0" y="5" width="1" height="1"/><rect fill="#40c463" x="2" y="5" width="1" height="1"/><rect fill="#40c463" x="5" y="5" width="1" height="1"/><rect fill="#40c463" x="7" y="5" width="1" height="1"/><rect fill="#40c463" x="1" y="6" width="1" height="1"/><rect fill="#40c463" x="6" y="6" width="1" height="1"/></svg></div>
-    <div class="pixel-invader"><svg class="inv-svg" viewBox="0 0 8 8"><rect fill="#9be9a8" x="1" y="0" width="1" height="1"/><rect fill="#9be9a8" x="6" y="0" width="1" height="1"/><rect fill="#9be9a8" x="2" y="1" width="1" height="1"/><rect fill="#9be9a8" x="5" y="1" width="1" height="1"/><rect fill="#9be9a8" x="1" y="2" width="6" height="1"/><rect fill="#9be9a8" x="0" y="3" width="2" height="1"/><rect fill="#9be9a8" x="3" y="3" width="2" height="1"/><rect fill="#9be9a8" x="6" y="3" width="2" height="1"/><rect fill="#9be9a8" x="0" y="4" width="8" height="1"/><rect fill="#9be9a8" x="0" y="5" width="1" height="1"/><rect fill="#9be9a8" x="2" y="5" width="1" height="1"/><rect fill="#9be9a8" x="5" y="5" width="1" height="1"/><rect fill="#9be9a8" x="7" y="5" width="1" height="1"/><rect fill="#9be9a8" x="1" y="6" width="1" height="1"/><rect fill="#9be9a8" x="6" y="6" width="1" height="1"/></svg></div>
-  </div>
-
-  <!-- Title -->
-  <div class="title">
-    <span class="scream">SCREAM</span><br>
-    <span class="invaders">INVADERS</span>
-  </div>
-  <div class="tagline">Your face is the controller. Your voice is the weapon.</div>
-
-  <!-- Volume bars -->
-  <div class="volume-demo">
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-    <div class="vol-bar"></div>
-  </div>
-  <div class="volume-labels">
-    <span class="quiet">pew</span>
-    <span class="medium">PEW PEW</span>
-    <span class="loud">BWAAAAM</span>
-  </div>
-
-  <!-- Play button -->
-  <a href="scream-invaders.html" class="play-btn">PLAY</a>
-  <div class="play-hint">REQUIRES CAMERA + MICROPHONE</div>
-
-  <!-- How it works -->
-  <div class="how-section">
-    <h2>HOW TO PLAY</h2>
-
-    <div class="control-row blue">
-      <div class="icon">&#x1f642;</div>
-      <div class="label">MOVE YOUR HEAD LEFT AND RIGHT<br><span class="dim">YOUR WEBCAM TRACKS YOUR FACE IN REAL TIME</span></div>
+<canvas id="game"></canvas>
+<div id="ui-overlay">
+  <div id="menu-screen" class="screen active">
+    <div id="landing-cat"></div>
+    <div class="title-text"><span class="title-song">SONG</span><br><span class="title-bird">BIRD</span></div>
+    <div class="subtitle">Sing to fly. Dodge the commits. Don't choke.</div>
+    <button class="btn" id="start-btn">&#x1f3a4; START</button>
+    <div class="hint">REQUIRES MICROPHONE</div>
+    <div class="how-grid">
+      <h2>HOW TO PLAY</h2>
+      <div class="how-row g"><div class="icon">&#x1f3b5;</div><div class="label">SING A NOTE TO CALIBRATE</div></div>
+      <div class="how-row b"><div class="icon">&#x1f3a4;</div><div class="label">SING HIGHER = FLY UP, LOWER = FLY DOWN</div></div>
+      <div class="how-row r"><div class="icon">&#x1f92b;</div><div class="label">STAY QUIET = GRAVITY</div></div>
+      <div class="how-row g"><div class="icon">&#x1f7e9;</div><div class="label">DODGE THE CONTRIBUTION GRAPH!</div></div>
     </div>
-
-    <div class="control-row green">
-      <div class="icon">&#x1f910;</div>
-      <div class="label">MAKE A SOUND TO SHOOT<br><span class="dim">QUIET = SINGLE SHOT</span></div>
-    </div>
-
-    <div class="control-row yellow">
-      <div class="icon">&#x1f62e;</div>
-      <div class="label">YELL FOR A TRIPLE BURST<br><span class="dim">THREE BULLETS AT ONCE</span></div>
-    </div>
-
-    <div class="control-row red">
-      <div class="icon">&#x1f631;</div>
-      <div class="label">SCREAM FOR THE BEAM WEAPON<br><span class="dim">SCREEN SHAKE + 2X SCORE MULTIPLIER</span></div>
-    </div>
-
-    <div class="control-row blue">
-      <div class="icon">&#x1f5e3;</div>
-      <div class="label">SAY "LEFT" OR "RIGHT" TO MOVE<br><span class="dim">VOICE COMMANDS + ARROW KEYS ALSO WORK</span></div>
-    </div>
+    <div class="footer-text">BUILT WITH WEB AUDIO API + CANVAS 2D | MIT LICENSE</div>
   </div>
-
-  <!-- Warning -->
-  <div class="warning">
-    BY WAVE 5 YOU WILL BE SCREAMING AT YOUR LAPTOP.<br>
-    YOUR COWORKERS WILL BE CONCERNED.<br>
-    THIS IS EXPECTED BEHAVIOR.
+  <div id="cal-screen" class="screen">
+    <div class="cal-label">SING A COMFORTABLE NOTE<br>AND HOLD IT FOR 3 SECONDS</div>
+    <div id="cal-meter"><div id="cal-fill"></div><div id="cal-hz">-- Hz</div></div>
+    <div id="cal-status">WAITING FOR VOICE...</div>
   </div>
-
-  <!-- Second CTA -->
-  <a href="scream-invaders.html" class="play-btn">PLAY NOW</a>
-  <div class="play-hint">ONE HTML FILE. NO INSTALL. PURE CHAOS.</div>
-
-  <br><br>
-
-  <!-- Footer -->
-  <div class="footer">
-    BUILT WITH THREE.JS + TENSORFLOW.JS + BLAZEFACE + WEB AUDIO API<br>
-    <a href="https://github.com/ashleywolf/scream-invaders">SOURCE CODE</a>
-    &nbsp;&nbsp;|&nbsp;&nbsp;
-    MIT LICENSE
+  <div id="go-screen" class="screen">
+    <div class="go-score" id="go-score-val">0 COMMITS</div>
+    <div class="go-best" id="go-best-val">&#x2B50; BEST: 0</div>
+    <div class="go-msg" id="go-msg-val">MERGE CONFLICT!</div>
+    <button class="btn" id="retry-btn">&#x1f504; PLAY AGAIN</button>
   </div>
 </div>
+<div id="mic-err"><p>&#x1f3a4; MICROPHONE ACCESS DENIED</p><p>Song Bird needs your mic to detect singing pitch. Please allow microphone access and try again.</p><button id="mic-err-close">OK</button></div>
+<div id="achievement">&#x1f3c6; ACHIEVEMENT UNLOCKED</div>
 
 <script>
-// Generate random stars
-const starsEl = document.getElementById('stars');
-for (let i = 0; i < 120; i++) {
-  const star = document.createElement('div');
-  star.className = 'star';
-  star.style.left = Math.random() * 100 + '%';
-  star.style.top = Math.random() * 100 + '%';
-  star.style.opacity = (0.2 + Math.random() * 0.8).toFixed(2);
-  star.style.animation = `twinkle ${2 + Math.random() * 4}s ease-in-out infinite ${Math.random() * 3}s`;
-  if (Math.random() > 0.7) {
-    star.style.width = '3px';
-    star.style.height = '3px';
-    star.style.boxShadow = '0 0 4px rgba(255,255,255,0.5)';
-  }
-  starsEl.appendChild(star);
+'use strict';
+(() => {
+
+// --- Constants ---
+const COLORS = { bg:'#0d1117', border:'#30363d', text:'#c9d1d9', green:'#39d353', blue:'#58a6ff', red:'#f85149' };
+const CONTRIB = ['#ebedf0','#9be9a8','#40c463','#30a14e','#216e39'];
+const GAME_OVER_MSGS = ['Merge conflict!','Force push rejected!','git reset --hard','Segfault in vocal cords','404: Pitch not found','Rebasing failed','Stack overflow in throat','Cannot read property of undefined voice','Fatal: ref HEAD is not a symbolic ref','Unhandled promise rejection: singing'];
+const MILESTONES = [10,25,50,100];
+const GRAVITY = 0.015;
+const JUMP_SMOOTHING = 0.07;
+const BASE_SPEED = 2.5;
+const MAX_SPEED = 5.5;
+const BASE_GAP = 0.28;
+const MIN_GAP = 0.18;
+const SPAWN_INTERVAL = 2500;
+const SQUARE_SIZE = 14;
+const SQUARE_GAP = 3;
+
+// --- DOM refs ---
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+const menuScreen = document.getElementById('menu-screen');
+const calScreen = document.getElementById('cal-screen');
+const goScreen = document.getElementById('go-screen');
+const startBtn = document.getElementById('start-btn');
+const retryBtn = document.getElementById('retry-btn');
+const calFill = document.getElementById('cal-fill');
+const calHz = document.getElementById('cal-hz');
+const calStatus = document.getElementById('cal-status');
+const goScoreVal = document.getElementById('go-score-val');
+const goBestVal = document.getElementById('go-best-val');
+const goMsgVal = document.getElementById('go-msg-val');
+const micErr = document.getElementById('mic-err');
+const micErrClose = document.getElementById('mic-err-close');
+const achievementEl = document.getElementById('achievement');
+
+// --- State ---
+let state = 'menu'; // menu, calibrating, playing, gameover
+let score = 0;
+let highScore = parseInt(localStorage.getItem('songbird_hi') || '0');
+let playerY = 0.5;
+let playerVY = 0;
+let obstacles = [];
+let lastSpawn = 0;
+let gameTime = 0;
+let shakeTimer = 0;
+let shakeIntensity = 0;
+let particles = [];
+let bgDecorations = [];
+let landingBob = 0;
+let achievedMilestones = new Set();
+
+// Audio state
+let audioCtx = null;
+let analyser = null;
+let micStream = null;
+let audioBuffer = null;
+let currentPitch = 0;
+let smoothPitch = 0;
+let isSinging = false;
+let calCenter = 220;
+let calRange = 100;
+let calSamples = [];
+let calStartTime = 0;
+let calDone = false;
+let lastSingTime = 0;
+const SILENCE_GRACE = 350; // ms to sustain position during brief gaps between words
+
+// Character offscreen canvas
+let charCanvas = null;
+let charCtx = null;
+const CHAR_SIZE = 48;
+
+// --- Resize ---
+function resize() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  initDecorations();
 }
+window.addEventListener('resize', resize);
+resize();
+
+// --- Offscreen character (Poptocat-inspired pixel Octocat with headphones) ---
+const buildCharacter = () => {
+  charCanvas = document.createElement('canvas');
+  charCanvas.width = CHAR_SIZE;
+  charCanvas.height = CHAR_SIZE;
+  charCtx = charCanvas.getContext('2d');
+};
+
+const drawCharacterToOffscreen = (time) => {
+  const c = charCtx;
+  const s = CHAR_SIZE;
+  c.clearRect(0, 0, s, s);
+  const p = s / 16;
+
+  // Tentacles (4 wiggly legs at bottom)
+  const wiggle = Math.sin(time * 6) * 1.5;
+  const wiggle2 = Math.cos(time * 5) * 1.5;
+  c.strokeStyle = '#6e40c9';
+  c.lineWidth = 2.5;
+  c.lineCap = 'round';
+  for (let i = 0; i < 4; i++) {
+    const bx = s * 0.25 + i * s * 0.18;
+    const by = s * 0.75;
+    const w = (i % 2 === 0) ? wiggle : wiggle2;
+    c.beginPath();
+    c.moveTo(bx, by);
+    c.quadraticCurveTo(bx + w, by + s * 0.1, bx - w * 0.5, by + s * 0.2);
+    c.stroke();
+  }
+
+  // Body (rounded cat shape)
+  c.fillStyle = '#1b1f23';
+  c.beginPath();
+  c.ellipse(s * 0.5, s * 0.5, s * 0.3, s * 0.32, 0, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = '#2d333b';
+  c.beginPath();
+  c.ellipse(s * 0.5, s * 0.52, s * 0.26, s * 0.26, 0, 0, Math.PI * 2);
+  c.fill();
+
+  // Cat ears
+  c.fillStyle = '#1b1f23';
+  c.beginPath();
+  c.moveTo(s * 0.25, s * 0.35);
+  c.lineTo(s * 0.2, s * 0.12);
+  c.lineTo(s * 0.38, s * 0.28);
+  c.closePath();
+  c.fill();
+  c.beginPath();
+  c.moveTo(s * 0.75, s * 0.35);
+  c.lineTo(s * 0.8, s * 0.12);
+  c.lineTo(s * 0.62, s * 0.28);
+  c.closePath();
+  c.fill();
+
+  // Inner ears (pink)
+  c.fillStyle = '#f778ba';
+  c.beginPath();
+  c.moveTo(s * 0.27, s * 0.33);
+  c.lineTo(s * 0.24, s * 0.18);
+  c.lineTo(s * 0.36, s * 0.29);
+  c.closePath();
+  c.fill();
+  c.beginPath();
+  c.moveTo(s * 0.73, s * 0.33);
+  c.lineTo(s * 0.76, s * 0.18);
+  c.lineTo(s * 0.64, s * 0.29);
+  c.closePath();
+  c.fill();
+
+  // Eyes
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.ellipse(s * 0.38, s * 0.44, s * 0.07, s * 0.08, 0, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.ellipse(s * 0.62, s * 0.44, s * 0.07, s * 0.08, 0, 0, Math.PI * 2);
+  c.fill();
+  // Pupils
+  c.fillStyle = '#0d1117';
+  c.beginPath();
+  c.arc(s * 0.39, s * 0.45, s * 0.035, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.arc(s * 0.63, s * 0.45, s * 0.035, 0, Math.PI * 2);
+  c.fill();
+  // Eye shine
+  c.fillStyle = '#fff';
+  c.beginPath();
+  c.arc(s * 0.4, s * 0.43, s * 0.015, 0, Math.PI * 2);
+  c.fill();
+  c.beginPath();
+  c.arc(s * 0.64, s * 0.43, s * 0.015, 0, Math.PI * 2);
+  c.fill();
+
+  // Nose + mouth
+  c.fillStyle = '#f778ba';
+  c.beginPath();
+  c.ellipse(s * 0.5, s * 0.54, s * 0.025, s * 0.018, 0, 0, Math.PI * 2);
+  c.fill();
+  c.strokeStyle = '#6e7681';
+  c.lineWidth = 1;
+  c.beginPath();
+  c.moveTo(s * 0.5, s * 0.56);
+  c.quadraticCurveTo(s * 0.44, s * 0.62, s * 0.42, s * 0.6);
+  c.stroke();
+  c.beginPath();
+  c.moveTo(s * 0.5, s * 0.56);
+  c.quadraticCurveTo(s * 0.56, s * 0.62, s * 0.58, s * 0.6);
+  c.stroke();
+
+  // Headphones
+  c.strokeStyle = '#58a6ff';
+  c.lineWidth = 3;
+  c.beginPath();
+  c.arc(s * 0.5, s * 0.35, s * 0.28, Math.PI * 1.15, Math.PI * 1.85);
+  c.stroke();
+  // Ear cups
+  c.fillStyle = '#58a6ff';
+  c.beginPath();
+  c.roundRect(s * 0.13, s * 0.32, s * 0.1, s * 0.14, 3);
+  c.fill();
+  c.beginPath();
+  c.roundRect(s * 0.77, s * 0.32, s * 0.1, s * 0.14, 3);
+  c.fill();
+  // Cup highlight
+  c.fillStyle = '#79c0ff';
+  c.beginPath();
+  c.roundRect(s * 0.15, s * 0.34, s * 0.04, s * 0.08, 2);
+  c.fill();
+  c.beginPath();
+  c.roundRect(s * 0.81, s * 0.34, s * 0.04, s * 0.08, 2);
+  c.fill();
+};
+
+buildCharacter();
+
+// --- Decorations (background) ---
+function initDecorations() {
+  bgDecorations = [];
+  const w = canvas.width, h = canvas.height;
+  // Commit dots
+  for (let i = 0; i < 12; i++) {
+    bgDecorations.push({ type:'dot', x:Math.random()*w, y:Math.random()*h, r:2+Math.random()*3, speed:0.15+Math.random()*0.3, color:CONTRIB[Math.floor(Math.random()*CONTRIB.length)], alpha:0.15+Math.random()*0.15 });
+  }
+  // Branch lines
+  for (let i = 0; i < 6; i++) {
+    bgDecorations.push({ type:'branch', x:Math.random()*w, y:Math.random()*h, len:30+Math.random()*60, angle:Math.random()*Math.PI*2, speed:0.1+Math.random()*0.2, alpha:0.08+Math.random()*0.08 });
+  }
+}
+initDecorations();
+
+// --- Landing page cat (draw to a div via canvas-to-dataURL) ---
+const drawLandingCat = () => {
+  const lc = document.createElement('canvas');
+  lc.width = 80; lc.height = 80;
+  const lctx = lc.getContext('2d');
+  // Scale up the character
+  const tc = document.createElement('canvas');
+  tc.width = CHAR_SIZE; tc.height = CHAR_SIZE;
+  const tctx = tc.getContext('2d');
+  charCtx = tctx;
+  drawCharacterToOffscreen(0);
+  charCtx = charCanvas.getContext('2d');
+  lctx.imageSmoothingEnabled = false;
+  lctx.drawImage(tc, 0, 0, CHAR_SIZE, CHAR_SIZE, 0, 0, 80, 80);
+  const catDiv = document.getElementById('landing-cat');
+  catDiv.style.backgroundImage = `url(${lc.toDataURL()})`;
+  catDiv.style.backgroundSize = 'contain';
+  catDiv.style.backgroundRepeat = 'no-repeat';
+  catDiv.style.backgroundPosition = 'center';
+};
+drawLandingCat();
+
+// --- Pitch Detection (YIN-style autocorrelation) ---
+const detectPitch = () => {
+  if (!analyser || !audioBuffer) return -1;
+  analyser.getFloatTimeDomainData(audioBuffer);
+
+  // RMS for silence detection
+  let rms = 0;
+  for (let i = 0; i < audioBuffer.length; i++) rms += audioBuffer[i] * audioBuffer[i];
+  rms = Math.sqrt(rms / audioBuffer.length);
+  if (rms < 0.015) return -1; // silence
+
+  const buf = audioBuffer;
+  const n = buf.length;
+  const sampleRate = audioCtx.sampleRate;
+
+  // Autocorrelation
+  const corrBuf = new Float32Array(n);
+  for (let lag = 0; lag < n; lag++) {
+    let sum = 0;
+    for (let i = 0; i < n - lag; i++) sum += buf[i] * buf[i + lag];
+    corrBuf[lag] = sum;
+  }
+
+  // Find first dip then first peak after it
+  let d = 0;
+  while (d < n - 1 && corrBuf[d] > corrBuf[d + 1]) d++;
+  let maxVal = -1, maxIdx = d;
+  for (let i = d; i < n - 1; i++) {
+    if (corrBuf[i] > maxVal) { maxVal = corrBuf[i]; maxIdx = i; }
+  }
+  if (maxIdx === 0 || maxIdx === d) return -1;
+
+  // Parabolic interpolation
+  const prev = corrBuf[maxIdx - 1];
+  const curr = corrBuf[maxIdx];
+  const next = corrBuf[maxIdx + 1];
+  const shift = (prev - next) / (2 * (prev - 2 * curr + next));
+  const refinedIdx = maxIdx + (isNaN(shift) ? 0 : shift);
+
+  const freq = sampleRate / refinedIdx;
+  if (freq < 60 || freq > 1200) return -1;
+  return freq;
+};
+
+// --- Audio setup ---
+const initAudio = async () => {
+  try {
+    micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const source = audioCtx.createMediaStreamSource(micStream);
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 2048;
+    source.connect(analyser);
+    audioBuffer = new Float32Array(analyser.fftSize);
+    return true;
+  } catch (e) {
+    micErr.style.display = 'block';
+    return false;
+  }
+};
+
+const stopAudio = () => {
+  if (micStream) { micStream.getTracks().forEach(t => t.stop()); micStream = null; }
+  if (audioCtx) { audioCtx.close(); audioCtx = null; }
+  analyser = null; audioBuffer = null;
+};
+
+// --- Calibration ---
+const startCalibration = () => {
+  state = 'calibrating';
+  showScreen(calScreen);
+  calSamples = [];
+  calStartTime = 0;
+  calDone = false;
+  calFill.style.width = '0px';
+  calFill.style.height = '0px';
+  calHz.textContent = '-- Hz';
+  calStatus.textContent = 'WAITING FOR VOICE...';
+};
+
+const updateCalibration = () => {
+  const freq = detectPitch();
+  if (freq > 0) {
+    if (calStartTime === 0) calStartTime = performance.now();
+    calSamples.push(freq);
+    const elapsed = (performance.now() - calStartTime) / 1000;
+    const progress = Math.min(elapsed / 2, 1);
+    const size = progress * 160;
+    calFill.style.width = size + 'px';
+    calFill.style.height = size + 'px';
+    calHz.textContent = Math.round(freq) + ' Hz';
+    calStatus.textContent = progress < 1 ? `HOLD IT... ${(2 - elapsed).toFixed(1)}s` : 'CALIBRATED!';
+    if (progress >= 1 && !calDone) {
+      calDone = true;
+      // Compute center and range
+      calSamples.sort((a, b) => a - b);
+      const trimmed = calSamples.slice(Math.floor(calSamples.length * 0.1), Math.floor(calSamples.length * 0.9));
+      calCenter = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+      // Range = one octave centered on calCenter (half octave up + half octave down)
+      calRange = calCenter;
+      calStatus.textContent = `CENTER: ${Math.round(calCenter)} Hz — READY!`;
+      setTimeout(() => startCountdown(), 600);
+    }
+  } else {
+    if (calSamples.length > 0 && (performance.now() - calStartTime) / 1000 < 2) {
+      // Brief silence during calibration, keep going
+    } else if (calSamples.length < 5) {
+      calStartTime = 0;
+      calSamples = [];
+      calFill.style.width = '0px';
+      calFill.style.height = '0px';
+      calHz.textContent = '-- Hz';
+      calStatus.textContent = 'WAITING FOR VOICE...';
+    }
+  }
+};
+
+// --- Countdown ---
+const startCountdown = () => {
+  state = 'countdown';
+  showScreen(null);
+  let count = 3;
+  const countdownTick = () => {
+    if (count > 0) {
+      calStatus.parentElement && showScreen(calScreen);
+      calFill.style.width = '120px';
+      calFill.style.height = '120px';
+      calFill.style.background = COLORS.green;
+      calHz.textContent = '';
+      calStatus.textContent = `${count}...`;
+      count--;
+      setTimeout(countdownTick, 1000);
+    } else {
+      calStatus.textContent = 'SING!';
+      setTimeout(startGame, 400);
+    }
+  };
+  countdownTick();
+};
+
+// --- Game start ---
+const startGame = () => {
+  state = 'playing';
+  showScreen(null);
+  score = 0;
+  playerY = 0.5;
+  playerVY = 0;
+  obstacles = [];
+  lastSpawn = 0;
+  gameTime = 0;
+  shakeTimer = 0;
+  particles = [];
+  achievedMilestones.clear();
+  smoothPitch = 0;
+  lastGapCenter = 0.5;
+};
+
+// --- Obstacles ---
+let lastGapCenter = 0.5;
+const spawnObstacle = () => {
+  const difficulty = Math.min(score / 50, 1);
+  const gapRatio = BASE_GAP - difficulty * (BASE_GAP - MIN_GAP);
+  // Progressive gap placement: early obstacles stay near center with small jumps,
+  // later obstacles spread further apart requiring bigger pitch changes
+  const maxDeviation = 0.08 + difficulty * 0.32; // 0.08 at start → 0.4 at max difficulty
+  const drift = (Math.random() * 2 - 1) * maxDeviation;
+  const gapCenter = Math.max(0.18, Math.min(0.82, lastGapCenter + drift));
+  lastGapCenter = gapCenter;
+  obstacles.push({
+    x: 1.1,
+    gapCenter,
+    gapSize: gapRatio,
+    scored: false,
+    colors: Array.from({length: 30}, () => CONTRIB[Math.floor(Math.random() * CONTRIB.length)])
+  });
+};
+
+// --- Particles ---
+const spawnNoteParticle = (x, y) => {
+  const notes = ['♪','♫','♬','♩'];
+  particles.push({
+    x, y,
+    vx: -1 - Math.random() * 2,
+    vy: -1 + Math.random() * 2,
+    life: 1,
+    decay: 0.015 + Math.random() * 0.01,
+    text: notes[Math.floor(Math.random() * notes.length)],
+    size: 8 + Math.random() * 8,
+    color: [COLORS.green, COLORS.blue, '#f778ba', '#d2a8ff'][Math.floor(Math.random() * 4)]
+  });
+};
+
+// --- Collision ---
+const checkCollision = (px, py, pSize) => {
+  const w = canvas.width, h = canvas.height;
+  const pr = pSize * 0.35;
+  for (const obs of obstacles) {
+    const ox = obs.x * w;
+    const colW = (SQUARE_SIZE + SQUARE_GAP) * 1;
+    const gapTop = (obs.gapCenter - obs.gapSize / 2) * h;
+    const gapBot = (obs.gapCenter + obs.gapSize / 2) * h;
+    if (px + pr > ox - colW / 2 && px - pr < ox + colW / 2) {
+      if (py - pr < gapTop || py + pr > gapBot) return true;
+    }
+  }
+  if (py - pr < 0 || py + pr > h) return true;
+  return false;
+};
+
+// --- Screen management ---
+const showScreen = (el) => {
+  [menuScreen, calScreen, goScreen].forEach(s => s.classList.remove('active'));
+  if (el) el.classList.add('active');
+};
+
+// --- Achievement ---
+let achieveTimeout = null;
+const showAchievement = (text) => {
+  achievementEl.textContent = `🏆 ${text}`;
+  achievementEl.classList.add('show');
+  if (achieveTimeout) clearTimeout(achieveTimeout);
+  achieveTimeout = setTimeout(() => achievementEl.classList.remove('show'), 2500);
+};
+
+// --- Game Over ---
+const triggerGameOver = () => {
+  state = 'gameover';
+  shakeTimer = 0.3;
+  shakeIntensity = 10;
+  if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('songbird_hi', String(highScore));
+  }
+  goScoreVal.textContent = `${score} COMMIT${score !== 1 ? 'S' : ''}`;
+  goBestVal.textContent = `⭐ BEST: ${highScore}`;
+  goMsgVal.textContent = GAME_OVER_MSGS[Math.floor(Math.random() * GAME_OVER_MSGS.length)];
+  setTimeout(() => showScreen(goScreen), 400);
+};
+
+// --- Drawing ---
+const drawBackground = (time) => {
+  const w = canvas.width, h = canvas.height;
+
+  // Base bg with subtle green shift based on score
+  const greenShift = Math.min(score / 100, 1) * 8;
+  const r = 13, g = 17 + Math.floor(greenShift), b = 23;
+  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  ctx.fillRect(0, 0, w, h);
+
+  // Dotted grid pattern
+  ctx.fillStyle = 'rgba(48,54,61,0.15)';
+  const gridSize = 20;
+  const offsetX = (time * 30) % gridSize;
+  for (let x = -offsetX; x < w; x += gridSize) {
+    for (let y = 0; y < h; y += gridSize) {
+      ctx.fillRect(x, y, 2, 2);
+    }
+  }
+
+  // Decorations
+  for (const d of bgDecorations) {
+    d.x -= d.speed;
+    if (d.x < -80) d.x = w + 80;
+    ctx.globalAlpha = d.alpha;
+    if (d.type === 'dot') {
+      ctx.fillStyle = d.color;
+      ctx.beginPath();
+      ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.strokeStyle = COLORS.border;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x + Math.cos(d.angle) * d.len, d.y + Math.sin(d.angle) * d.len);
+      ctx.stroke();
+      // Commit dot at end
+      ctx.fillStyle = CONTRIB[2];
+      ctx.beginPath();
+      ctx.arc(d.x + Math.cos(d.angle) * d.len, d.y + Math.sin(d.angle) * d.len, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+  }
+};
+
+const drawObstacles = () => {
+  const w = canvas.width, h = canvas.height;
+  const sqTotal = SQUARE_SIZE + SQUARE_GAP;
+
+  for (const obs of obstacles) {
+    const ox = obs.x * w;
+    const gapTop = (obs.gapCenter - obs.gapSize / 2) * h;
+    const gapBot = (obs.gapCenter + obs.gapSize / 2) * h;
+
+    // Top column (from top down)
+    let ci = 0;
+    for (let y = gapTop - sqTotal; y >= -SQUARE_SIZE; y -= sqTotal) {
+      const color = obs.colors[ci % obs.colors.length];
+      ctx.fillStyle = color;
+      const rx = ox - SQUARE_SIZE / 2;
+      ctx.beginPath();
+      ctx.roundRect(rx, y, SQUARE_SIZE, SQUARE_SIZE, 2);
+      ctx.fill();
+      ci++;
+    }
+
+    // Bottom column (from gap down)
+    ci = 0;
+    for (let y = gapBot; y < h + SQUARE_SIZE; y += sqTotal) {
+      const color = obs.colors[(ci + 5) % obs.colors.length];
+      ctx.fillStyle = color;
+      const rx = ox - SQUARE_SIZE / 2;
+      ctx.beginPath();
+      ctx.roundRect(rx, y, SQUARE_SIZE, SQUARE_SIZE, 2);
+      ctx.fill();
+      ci++;
+    }
+  }
+};
+
+const drawPlayer = (time) => {
+  const w = canvas.width, h = canvas.height;
+  const size = Math.min(w, h) * 0.065;
+  const px = w * 0.2;
+  const py = playerY * h;
+
+  // Draw character
+  drawCharacterToOffscreen(time);
+  ctx.save();
+  ctx.translate(px, py);
+  // Tilt based on velocity
+  const tilt = Math.max(-0.4, Math.min(0.4, playerVY * 0.3));
+  ctx.rotate(tilt);
+  ctx.imageSmoothingEnabled = false;
+  ctx.drawImage(charCanvas, -size / 2, -size / 2, size, size);
+  ctx.restore();
+};
+
+const drawParticles = () => {
+  for (const p of particles) {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.font = `${p.size}px 'Press Start 2P', monospace`;
+    ctx.fillText(p.text, p.x, p.y);
+  }
+  ctx.globalAlpha = 1;
+};
+
+const drawHUD = () => {
+  const w = canvas.width, h = canvas.height;
+  const fs = Math.max(10, Math.min(14, w * 0.018));
+  ctx.font = `${fs}px 'Press Start 2P', monospace`;
+
+  // Score top-left
+  ctx.fillStyle = COLORS.text;
+  ctx.textAlign = 'left';
+  ctx.fillText(`🔀 ${score} commit${score !== 1 ? 's' : ''}`, 16, 32);
+
+  // High score top-right
+  ctx.textAlign = 'right';
+  ctx.fillStyle = '#8b949e';
+  ctx.fillText(`⭐ Best: ${highScore}`, w - 16, 32);
+
+  // Pitch indicator left side
+  const barX = 12, barW = 8, barH = h * 0.3, barY = h * 0.35;
+  ctx.fillStyle = COLORS.border;
+  ctx.fillRect(barX, barY, barW, barH);
+
+  // Center line
+  ctx.fillStyle = '#6e7681';
+  ctx.fillRect(barX - 2, barY + barH / 2 - 1, barW + 4, 2);
+
+  // Current pitch marker
+  if (isSinging) {
+    const pitchOffset = (currentPitch - calCenter) / calRange;
+    const markerY = barY + barH / 2 - pitchOffset * barH * 0.5;
+    const clampedY = Math.max(barY, Math.min(barY + barH - 6, markerY));
+    ctx.fillStyle = COLORS.green;
+    ctx.fillRect(barX - 1, clampedY, barW + 2, 6);
+    ctx.shadowColor = COLORS.green;
+    ctx.shadowBlur = 8;
+    ctx.fillRect(barX - 1, clampedY, barW + 2, 6);
+    ctx.shadowBlur = 0;
+  }
+
+  ctx.textAlign = 'left';
+};
+
+// --- Main Loop ---
+let lastTime = 0;
+let noteSpawnTimer = 0;
+
+const loop = (timestamp) => {
+  const dt = Math.min((timestamp - lastTime) / 1000, 0.05);
+  lastTime = timestamp;
+
+  // Pitch detection every frame
+  if (analyser && audioBuffer && (state === 'calibrating' || state === 'playing')) {
+    const freq = detectPitch();
+    if (freq > 0) {
+      currentPitch = freq;
+      smoothPitch = smoothPitch * (1 - JUMP_SMOOTHING) + freq * JUMP_SMOOTHING;
+      isSinging = true;
+      lastSingTime = performance.now();
+    } else {
+      // Grace period: treat short silences (between syllables/words) as still singing
+      isSinging = (performance.now() - lastSingTime) < SILENCE_GRACE;
+    }
+  }
+
+  if (state === 'calibrating') {
+    updateCalibration();
+  }
+
+  // --- Update ---
+  if (state === 'playing') {
+    gameTime += dt;
+    const difficulty = Math.min(score / 50, 1);
+    const speed = BASE_SPEED + difficulty * (MAX_SPEED - BASE_SPEED);
+
+    // Player physics
+    if (isSinging) {
+      const pitchOffset = (smoothPitch - calCenter) / calRange;
+      const targetY = 0.5 - pitchOffset * 0.45;
+      playerVY += (targetY - playerY) * 2 * dt;
+      playerVY *= 0.88;
+    } else {
+      playerVY += GRAVITY * dt;
+      playerVY *= 0.92;
+    }
+    playerVY = Math.max(-0.15, Math.min(0.15, playerVY));
+    playerY += playerVY;
+    playerY = Math.max(0.02, Math.min(0.98, playerY));
+
+    // Spawn obstacles
+    lastSpawn += dt * 1000;
+    if (lastSpawn > SPAWN_INTERVAL) {
+      spawnObstacle();
+      lastSpawn = 0;
+    }
+
+    // Move obstacles
+    for (const obs of obstacles) {
+      obs.x -= (speed / canvas.width) * dt * 60;
+      // Score
+      if (!obs.scored && obs.x < 0.2) {
+        obs.scored = true;
+        score++;
+        // Milestone check
+        if (MILESTONES.includes(score) && !achievedMilestones.has(score)) {
+          achievedMilestones.add(score);
+          showAchievement(`${score} COMMITS!`);
+        }
+      }
+    }
+    obstacles = obstacles.filter(o => o.x > -0.1);
+
+    // Collision
+    const pSize = Math.min(canvas.width, canvas.height) * 0.065;
+    if (checkCollision(canvas.width * 0.2, playerY * canvas.height, pSize)) {
+      triggerGameOver();
+    }
+
+    // Particles (musical notes when singing)
+    noteSpawnTimer += dt;
+    if (isSinging && noteSpawnTimer > 0.12) {
+      noteSpawnTimer = 0;
+      spawnNoteParticle(canvas.width * 0.2 - pSize * 0.3, playerY * canvas.height);
+    }
+    for (const p of particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.life -= p.decay;
+    }
+    particles = particles.filter(p => p.life > 0);
+  }
+
+  // Shake
+  if (shakeTimer > 0) shakeTimer -= dt;
+
+  // --- Draw ---
+  ctx.save();
+  if (shakeTimer > 0) {
+    const sx = (Math.random() - 0.5) * shakeIntensity * (shakeTimer / 0.3);
+    const sy = (Math.random() - 0.5) * shakeIntensity * (shakeTimer / 0.3);
+    ctx.translate(sx, sy);
+  }
+
+  drawBackground(state === 'playing' ? gameTime : timestamp / 1000);
+
+  if (state === 'playing' || state === 'gameover') {
+    drawObstacles();
+    drawPlayer(state === 'playing' ? gameTime : timestamp / 1000);
+    drawParticles();
+    drawHUD();
+  }
+
+  if (state === 'menu') {
+    // Animate landing bob on the cat div
+    landingBob = Math.sin(timestamp / 500) * 4;
+    const catDiv = document.getElementById('landing-cat');
+    if (catDiv) catDiv.style.transform = `translateY(${landingBob}px)`;
+  }
+
+  ctx.restore();
+  requestAnimationFrame(loop);
+};
+
+// --- Event handlers ---
+startBtn.addEventListener('click', async () => {
+  const ok = await initAudio();
+  if (ok) startCalibration();
+});
+
+retryBtn.addEventListener('click', () => {
+  startCalibration();
+});
+
+micErrClose.addEventListener('click', () => {
+  micErr.style.display = 'none';
+  showScreen(menuScreen);
+});
+
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  if (state === 'menu') startBtn.click();
+});
+
+// Cleanup
+window.addEventListener('beforeunload', stopAudio);
+
+// --- Start ---
+requestAnimationFrame(loop);
+
+})();
 </script>
 </body>
 </html>
