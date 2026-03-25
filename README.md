@@ -1,6 +1,6 @@
 # SONG BIRD 🐦🎤
 
-A Flappy Bird clone where your voice is the controller. Sing to fly. Dodge the contribution graph. Try not to embarrass yourself.
+Use your voice as the controller for your character. Sing to fly. Dodge the contribution graph. Try not to embarrass yourself.
 
 ## How it works
 
