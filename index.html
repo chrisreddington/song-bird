@@ -344,7 +344,7 @@ const detectPitch = () => {
   let rms = 0;
   for (let i = 0; i < audioBuffer.length; i++) rms += audioBuffer[i] * audioBuffer[i];
   rms = Math.sqrt(rms / audioBuffer.length);
-  if (rms < 0.015) return -1; // silence
+  if (rms < 0.02) return -1; // silence threshold (slightly higher to reject quiet breaths)
 
   const buf = audioBuffer;
   const n = buf.length;
@@ -366,6 +366,11 @@ const detectPitch = () => {
     if (corrBuf[i] > maxVal) { maxVal = corrBuf[i]; maxIdx = i; }
   }
   if (maxIdx === 0 || maxIdx === d) return -1;
+
+  // Confidence check: ratio of peak to zero-lag (periodicity strength)
+  // Breaths and noise have low periodicity, tonal singing has high
+  const confidence = corrBuf[maxIdx] / corrBuf[0];
+  if (confidence < 0.4) return -1;
 
   // Parabolic interpolation
   const prev = corrBuf[maxIdx - 1];
@@ -736,10 +741,24 @@ const loop = (timestamp) => {
   if (analyser && audioBuffer && (state === 'calibrating' || state === 'playing')) {
     const freq = detectPitch();
     if (freq > 0) {
-      currentPitch = freq;
-      smoothPitch = smoothPitch * (1 - JUMP_SMOOTHING) + freq * JUMP_SMOOTHING;
-      isSinging = true;
-      lastSingTime = performance.now();
+      // During gameplay, reject pitches far outside calibrated range (likely breath/noise artifacts)
+      if (state === 'playing' && calCenter > 0) {
+        const halfOctave = calCenter * 0.5;
+        if (freq < calCenter - halfOctave * 1.2 || freq > calCenter + halfOctave * 1.2) {
+          // Pitch is way outside expected singing range — treat as noise
+          isSinging = (performance.now() - lastSingTime) < SILENCE_GRACE;
+        } else {
+          currentPitch = freq;
+          smoothPitch = smoothPitch * (1 - JUMP_SMOOTHING) + freq * JUMP_SMOOTHING;
+          isSinging = true;
+          lastSingTime = performance.now();
+        }
+      } else {
+        currentPitch = freq;
+        smoothPitch = smoothPitch * (1 - JUMP_SMOOTHING) + freq * JUMP_SMOOTHING;
+        isSinging = true;
+        lastSingTime = performance.now();
+      }
     } else {
       // Grace period: treat short silences (between syllables/words) as still singing
       isSinging = (performance.now() - lastSingTime) < SILENCE_GRACE;
