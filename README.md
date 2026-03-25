@@ -14,7 +14,7 @@ A Space Invaders clone where your keyboard is useless and your dignity is option
 
 By wave 5 you'll be standing up. By wave 7 someone will come check on you. This is working as intended.
 
-**[Play Scream Invaders](https://ashleywolf.github.io/3dpingpong/scream-invaders.html)**
+**[Play Scream Invaders](https://ashleywolf.github.io/scream-invaders/scream-invaders.html)**
 
 ### [GitHub Pong 3D](index.html) 🏓
 
@@ -25,7 +25,7 @@ A 3D pong game themed after the GitHub contribution graph, with webcam eyebrow-t
 - **AI Opponent** -- one face = you vs. computer
 - **Head-coupled parallax** -- 3D camera adjusts based on your head position
 
-**[Play GitHub Pong 3D](https://ashleywolf.github.io/3dpingpong/)**
+**[Play GitHub Pong 3D](https://ashleywolf.github.io/scream-invaders/)**
 
 ## Running Locally
 
